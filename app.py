@@ -13,11 +13,6 @@ url = "https://uxgvgumfqbvsknhdjjnu.supabase.co"
 key = "sb_publishable_uMTn1gbS1AX5MIbmTa8nrA_-i2e8a7s"
 
 supabase = create_client(url, key)
-st.set_page_config(
-    page_title="Registro de Delitos",
-    page_icon="🚨",
-    layout="centered"
-)
 
 st.title("🚨Registro de Delitos")
 st.markdown("### Reporta rápidamente lo ocurrido")
@@ -45,8 +40,6 @@ with col2:
     if st.button("⚠️ Asalto", use_container_width=True):
         st.session_state.tipo_delito = "Asalto"
 
-    if st.button("👤 Persona sospechosa", use_container_width=True):
-        st.session_state.tipo_delito = "Persona sospechosa"
 
     if st.button("📍 Otro", use_container_width=True):
         st.session_state.tipo_delito = "Otro"
@@ -65,6 +58,13 @@ if tipo_delito:
         location=[14.9006, -92.2634],
         zoom_start=13
     )
+if st.session_state.latitud and st.session_state.longitud:
+
+    folium.Marker(
+        [st.session_state.latitud, st.session_state.longitud],
+        tooltip="Ubicación seleccionada",
+        icon=folium.Icon(color="red", icon="info-sign")
+    ).add_to(mapa)
 
     mapa_interactivo = st_folium(
         mapa,
@@ -72,36 +72,43 @@ if tipo_delito:
         height=400
     )
 
-    latitud = None
-    longitud = None
+if "latitud" not in st.session_state:
+    st.session_state.latitud = None
+
+if "longitud" not in st.session_state:
+    st.session_state.longitud = None
+    
 
     if mapa_interactivo["last_clicked"]:
 
-        latitud = mapa_interactivo["last_clicked"]["lat"]
-        longitud = mapa_interactivo["last_clicked"]["lng"]
+     st.session_state.latitud = mapa_interactivo["last_clicked"]["lat"]
+     st.session_state.longitud = mapa_interactivo["last_clicked"]["lng"]
 
-        folium.Marker(
-            [latitud, longitud],
-            tooltip="Ubicación seleccionada",
-            icon=folium.Icon(color="red", icon="info-sign")
-        ).add_to(mapa)
+     st.success("📌 Punto marcado correctamente")
 
-        st.success("📌 Punto marcado correctamente")
+    latitud = mapa_interactivo["last_clicked"]["lat"]
+    longitud = mapa_interactivo["last_clicked"]["lng"]
 
-    if st.button("✅ Enviar reporte", use_container_width=True):
+    folium.Marker(
+        [latitud, longitud],
+        tooltip="Ubicación seleccionada",
+        icon=folium.Icon(color="red", icon="info-sign")
+    ).add_to(mapa)
 
-        if latitud and longitud:
+    st.success("📌 Punto marcado correctamente")
 
-            datos = {
-                "tipo_delito": tipo_delito,
-                "fecha": str(fecha),
-                "latitud": latitud,
-                "longitud": longitud
-            }
+if st.button("✅ Enviar reporte", use_container_width=True):
 
-            supabase.table("Delitos").insert(datos).execute()
+    if st.session_state.latitud and st.session_state.longitud:
+        datos = {
+            "tipo_delito": tipo_delito,
+            "fecha": str(fecha),
+            "latitud": st.session_state.latitud,
+            "longitud": st.session_state.longitud
+        }
 
-            st.success("🚨 Reporte enviado correctamente")
+        supabase.table("Delitos").insert(datos).execute()
 
-        else:
-            st.error("Selecciona una ubicación en el mapa")
+        st.success("🚨 Reporte enviado correctamente")
+    else:
+        st.error("Selecciona una ubicación en el mapa")
