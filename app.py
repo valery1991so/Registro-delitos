@@ -5,8 +5,8 @@ from streamlit_folium import st_folium
 
 # ---------------- SUPABASE ----------------
 
-url = "TU_URL"
-key = "TU_KEY"
+url = "https://uxgvgumfqbvsknhdjjnu.supabase.co"
+key = "sb_publishable_uMTn1gbS1AX5MIbmTa8nrA_-i2e8a7s"
 
 supabase = create_client(url, key)
 
@@ -93,6 +93,7 @@ if "tipo" in st.session_state:
   )
 
     latitud = None
+
     longitud = None
 
     # Detectar clic en mapa
