@@ -1,7 +1,16 @@
 import streamlit as st
-from streamlit_folium import st_folium
-import folium
 from supabase import create_client
+import folium
+from streamlit_folium import st_folium
+
+# ---------------- SUPABASE ----------------
+
+url = "TU_URL"
+key = "TU_KEY"
+
+supabase = create_client(url, key)
+
+# ---------------- CONFIGURACIÓN ----------------
 
 st.set_page_config(
     page_title="Registro de Delitos",
@@ -9,104 +18,104 @@ st.set_page_config(
     layout="centered"
 )
 
-url = "https://uxgvgumfqbvsknhdjjnu.supabase.co"
-key = "sb_publishable_uMTn1gbS1AX5MIbmTa8nrA_-i2e8a7s"
+# ---------------- ESTILO ----------------
 
-supabase = create_client(url, key)
+st.markdown("""
+<style>
+.stButton > button {
+    width: 100%;
+    border-radius: 15px;
+    height: 60px;
+    font-size: 18px;
+    font-weight: bold;
+}
+</style>
+""", unsafe_allow_html=True)
 
-st.title("🚨Registro de Delitos")
-st.markdown("### Reporta rápidamente lo ocurrido")
-st.divider()
+# ---------------- TÍTULO ----------------
+
+st.title("🚨 Reporta rápidamente lo ocurrido")
+
+st.write("---")
 
 st.subheader("¿Qué deseas reportar?")
-if "tipo_delito" not in st.session_state:
-    st.session_state.tipo_delito = None
+
+# ---------------- BOTONES ----------------
 
 col1, col2 = st.columns(2)
 
+tipo = None
+
 with col1:
+    if st.button("🚗 Robo de vehículo"):
+        tipo = "Robo de vehículo"
 
-    if st.button("🚗 Robo de vehículo", use_container_width=True):
-        st.session_state.tipo_delito = "Robo de vehículo"
+    if st.button("📱 Robo de celular"):
+        tipo = "Robo de celular"
 
-    if st.button("📱 Robo de celular", use_container_width=True):
-        st.session_state.tipo_delito = "Robo de celular"
-
-    if st.button("🧱 Vandalismo", use_container_width=True):
-        st.session_state.tipo_delito = "Vandalismo"
+    if st.button("🧱 Vandalismo"):
+        tipo = "Vandalismo"
 
 with col2:
+    if st.button("⚠️ Asalto"):
+        tipo = "Asalto"
 
-    if st.button("⚠️ Asalto", use_container_width=True):
-        st.session_state.tipo_delito = "Asalto"
+    if st.button("📍 Otro"):
+        tipo = "Otro"
 
+# Guardar selección
+if tipo:
+    st.session_state.tipo = tipo
 
-    if st.button("📍 Otro", use_container_width=True):
-        st.session_state.tipo_delito = "Otro"
+# ---------------- MOSTRAR SELECCIÓN ----------------
 
-tipo_delito = st.session_state.tipo_delito
-if "latitud" not in st.session_state:
-    st.session_state.latitud = None
+if "tipo" in st.session_state:
 
-if "longitud" not in st.session_state:
-    st.session_state.longitud = None
-if tipo_delito:
+    st.success(f"Seleccionaste: {st.session_state.tipo}")
 
-    st.success(f"Seleccionaste: {tipo_delito}")
+    fecha = st.date_input("🗓️ Fecha del incidente")
 
-    fecha = st.date_input("📅 Fecha del incidente")
+    st.subheader("📍 Toca el mapa para marcar ubicación")
 
-    st.markdown("### 📍 Toca el mapa para marcar ubicación")
-
+    # Coordenadas de Tapachula
     mapa = folium.Map(
-        location=[14.9006, -92.2634],
+        location=[14.9, -92.27],
         zoom_start=13
     )
-if st.session_state.latitud and st.session_state.longitud:
 
-    folium.Marker(
-        [st.session_state.latitud, st.session_state.longitud],
-        tooltip="Ubicación seleccionada",
-        icon=folium.Icon(color="red", icon="info-sign")
-    ).add_to(mapa)
-
-    mapa_interactivo = st_folium(
+    # Mostrar mapa interactivo
+    mapa_data = st_folium(
         mapa,
         width=700,
-        height=400
+        height=450
     )
-    
 
-    if mapa_interactivo["last_clicked"]:
+    latitud = None
+    longitud = None
 
-     st.session_state.latitud = mapa_interactivo["last_clicked"]["lat"]
-     st.session_state.longitud = mapa_interactivo["last_clicked"]["lng"]
+    # Detectar clic en mapa
+    if mapa_data["last_clicked"] is not None:
 
-     st.success("📌 Punto marcado correctamente")
+        latitud = mapa_data["last_clicked"]["lat"]
+        longitud = mapa_data["last_clicked"]["lng"]
 
-    latitud = mapa_interactivo["last_clicked"]["lat"]
-    longitud = mapa_interactivo["last_clicked"]["lng"]
+        # Mostrar ubicación elegida
+        st.success("📌 Ubicación marcada correctamente")
 
-    folium.Marker(
-        [latitud, longitud],
-        tooltip="Ubicación seleccionada",
-        icon=folium.Icon(color="red", icon="info-sign")
-    ).add_to(mapa)
+        st.write("Latitud:", latitud)
+        st.write("Longitud:", longitud)
 
-    st.success("📌 Punto marcado correctamente")
+    # ---------------- GUARDAR REPORTE ----------------
 
-if st.button("✅ Enviar reporte", use_container_width=True):
+    if st.button("✅ Enviar reporte"):
 
-    if st.session_state.latitud and st.session_state.longitud:
         datos = {
-            "tipo_delito": tipo_delito,
+            "tipo_delito": st.session_state.tipo,
             "fecha": str(fecha),
-            "latitud": st.session_state.latitud,
-            "longitud": st.session_state.longitud
+            "latitud": latitud,
+            "longitud": longitud
         }
 
         supabase.table("Delitos").insert(datos).execute()
 
         st.success("🚨 Reporte enviado correctamente")
-    else:
-        st.error("Selecciona una ubicación en el mapa")
