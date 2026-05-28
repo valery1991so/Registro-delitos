@@ -24,29 +24,34 @@ st.markdown("### Reporta rápidamente lo ocurrido")
 st.divider()
 
 st.subheader("¿Qué deseas reportar?")
-tipo_delito = None
+if "tipo_delito" not in st.session_state:
+    st.session_state.tipo_delito = None
 
 col1, col2 = st.columns(2)
 
 with col1:
+
     if st.button("🚗 Robo de vehículo", use_container_width=True):
-        tipo_delito = "Robo de vehículo"
+        st.session_state.tipo_delito = "Robo de vehículo"
 
     if st.button("📱 Robo de celular", use_container_width=True):
-        tipo_delito = "Robo de celular"
+        st.session_state.tipo_delito = "Robo de celular"
 
     if st.button("🧱 Vandalismo", use_container_width=True):
-        tipo_delito = "Vandalismo"
+        st.session_state.tipo_delito = "Vandalismo"
 
 with col2:
+
     if st.button("⚠️ Asalto", use_container_width=True):
-        tipo_delito = "Asalto"
+        st.session_state.tipo_delito = "Asalto"
 
     if st.button("👤 Persona sospechosa", use_container_width=True):
-        tipo_delito = "Persona sospechosa"
+        st.session_state.tipo_delito = "Persona sospechosa"
 
     if st.button("📍 Otro", use_container_width=True):
-        tipo_delito = "Otro"
+        st.session_state.tipo_delito = "Otro"
+
+tipo_delito = st.session_state.tipo_delito
 
 if tipo_delito:
 
