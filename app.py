@@ -1,4 +1,6 @@
 import streamlit as st
+from streamlit_folium import st_folium
+import folium
 from supabase import create_client
 
 st.set_page_config(
@@ -52,12 +54,34 @@ if tipo_delito:
 
     fecha = st.date_input("📅 Fecha del incidente")
 
-    latitud = st.text_input("🌍 Latitud")
-    longitud = st.text_input("🌎 Longitud")
+    st.markdown("### 📍 Selecciona en el mapa dónde ocurrió")
+
+mapa = folium.Map(
+    location=[14.9006, -92.2634],
+    zoom_start=13
+)
+
+mapa_interactivo = st_folium(
+    mapa,
+    width=700,
+    height=400
+)
+
+latitud = None
+longitud = None
+
+if mapa_interactivo["last_clicked"]:
+
+    latitud = mapa_interactivo["last_clicked"]["lat"]
+    longitud = mapa_interactivo["last_clicked"]["lng"]
+
+    st.success(f"Ubicación seleccionada")
 
     
 
     if st.button("✅ Enviar reporte", use_container_width=True):
+
+     if latitud and longitud:
 
         datos = {
             "tipo": tipo_delito,
@@ -66,7 +90,8 @@ if tipo_delito:
             "longitud": longitud
         }
 
-    
+     else:
+         st.error("Selecciona una ubicación en el mapa")
 
 
 supabase.table("Delitos").insert(datos).execute()
