@@ -69,6 +69,6 @@ if tipo_delito:
     
 
 
-    supabase.table("Delitos").insert(datos).execute()
+supabase.table("Delitos").insert(datos).execute()
 
-    st.success("✅ Reporte enviado correctamente")
+st.success("✅ Reporte enviado correctamente")
