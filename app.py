@@ -45,7 +45,11 @@ with col2:
         st.session_state.tipo_delito = "Otro"
 
 tipo_delito = st.session_state.tipo_delito
+if "latitud" not in st.session_state:
+    st.session_state.latitud = None
 
+if "longitud" not in st.session_state:
+    st.session_state.longitud = None
 if tipo_delito:
 
     st.success(f"Seleccionaste: {tipo_delito}")
@@ -71,12 +75,6 @@ if st.session_state.latitud and st.session_state.longitud:
         width=700,
         height=400
     )
-
-if "latitud" not in st.session_state:
-    st.session_state.latitud = None
-
-if "longitud" not in st.session_state:
-    st.session_state.longitud = None
     
 
     if mapa_interactivo["last_clicked"]:
