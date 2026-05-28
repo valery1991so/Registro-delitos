@@ -33,7 +33,10 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------- TÍTULO ----------------
+col1, col2, col3 = st.columns([1,2,1])
 
+with col2:
+    st.image("imagenes/ChatGPT Image 26 may 2026, 08_55_04.png", width=180)
 st.title("🚨 Reporta rápidamente lo ocurrido")
 
 st.write("---")
