@@ -79,16 +79,18 @@ if "tipo" in st.session_state:
 
     # Coordenadas de Tapachula
     mapa = folium.Map(
-        location=[14.9, -92.27],
-        zoom_start=13
-    )
+    location=[14.90, -92.26],
+    zoom_start=13,
+    tiles="OpenStreetMap"
+)
 
     # Mostrar mapa interactivo
     mapa_data = st_folium(
-        mapa,
-        width=700,
-        height=450
-    )
+    mapa,
+    width="100%",
+    height=450,
+    returned_objects=["last_clicked"]
+  )
 
     latitud = None
     longitud = None

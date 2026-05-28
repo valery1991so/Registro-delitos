@@ -1,6 +1,6 @@
 streamlit
-pandas
 supabase
+pandas
 openpyxl
-streamlit-folium
 folium
+streamlit-folium
