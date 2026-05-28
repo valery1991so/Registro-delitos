@@ -46,15 +46,28 @@ with col2:
     if st.button("📍 Otro", use_container_width=True):
         tipo_delito = "Otro"
 
+if tipo_delito:
 
-fecha = st.date_input("Fecha")
+    st.success(f"Seleccionaste: {tipo_delito}")
 
-if st.button("Guardar"):
+    fecha = st.date_input("📅 Fecha del incidente")
 
-    datos = {
-        "tipo_delito": tipo_delito,
-        "fecha": str(fecha)
-    }
+    latitud = st.text_input("🌍 Latitud")
+    longitud = st.text_input("🌎 Longitud")
+
+    
+
+    if st.button("✅ Enviar reporte", use_container_width=True):
+
+        datos = {
+            "tipo": tipo_delito,
+            "fecha": str(fecha),
+            "latitud": latitud,
+            "longitud": longitud
+        }
+
+    
+
 
     supabase.table("Delitos").insert(datos).execute()
 
